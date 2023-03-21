@@ -6,7 +6,7 @@ import datetime
 import joblib
 import folium
 from geopy.geocoders import Nominatim
-
+from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__, template_folder="template")
 model = joblib.load(open("./models/clf.pkl", "rb"))
@@ -22,39 +22,36 @@ def home():
 def predict():
 	if request.method == "POST":
 		cereal_yield = float(request.form['cereal_yield'])
-		# MaxTemp
+		
 		fdi_perc_gdp = float(request.form['fdi_perc_gdp'])
-		# Rainfall
+		
 		en_per_gdp = float(request.form['en_per_gdp'])
-		# Evaporation
+		
 		en_per_cap = float(request.form['en_per_cap'])
-		# Sunshine
+		
 		co2_ttl = float(request.form['co2_ttl'])
-		# Wind Gust Speed
+		
 		co2_per_cap = float(request.form['co2_per_cap'])
-		# Wind Speed 9am
+		
 		co2_per_gdp = float(request.form['co2_per_gdp'])
-		# Wind Speed 3pm
+		
 		pop_urb_aggl_perc= float(request.form['pop_urb_aggl_perc'])
-		# Humidity 9am
+		
 		prot_area_perc = float(request.form['prot_area_perc'])
-		# Humidity 3pm
+		
 		gdp = float(request.form['gdp'])
-		# Pressure 9am
+		
 		gni_per_cap = float(request.form['gni_per_cap'])
-		# Pressure 3pm
+		
 		under_5_mort_rate = float(request.form['under_5_mort_rate'])
-		# Temperature 9am
+		
 		pop_growth_perc = float(request.form['pop_growth_perc'])
-		# Temperature 3pm
+		
 		pop = float(request.form['pop'])
-		# Cloud 9am
+		
 		urb_pop_growth_perc = float(request.form['urb_pop_growth_perc'])
-		# Cloud 3pm
+		
 		urb_pop = float(request.form['urb_pop'])
-
-
-
 
 
 		input_lst = [[cereal_yield,
@@ -73,7 +70,9 @@ def predict():
             pop,
             urb_pop_growth_perc,urb_pop
             ]]
-		pred = model.predict(input_lst)
+		scaler = StandardScaler().fit(np.array(input_lst).reshape(1,-1))
+		input_data_norm = scaler.transform(np.array(input_lst).reshape(1,-1))
+		pred = model.predict(input_data_norm)
 		output = pred
 		if output == 'green':
 			return render_template("green.html")
