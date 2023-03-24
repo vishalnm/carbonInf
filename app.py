@@ -8,8 +8,11 @@ import folium
 from geopy.geocoders import Nominatim
 from sklearn.preprocessing import StandardScaler
 
+
+
 app = Flask(__name__, template_folder="template")
-model = joblib.load(open("./models/clf.pkl", "rb"))
+model = joblib.load(open("./models/DecisionTreeClassifier.pkl", "rb"))
+scaler = joblib.load(open("./models/scaler.joblib", "rb"))
 print("Model Loaded")
 
 @app.route("/",methods=['GET'])
@@ -31,7 +34,7 @@ def predict():
 		
 		co2_ttl = float(request.form['co2_ttl'])
 		
-		co2_per_cap = float(request.form['co2_per_cap'])
+		# co2_per_cap = float(request.form['co2_per_cap'])
 		
 		co2_per_gdp = float(request.form['co2_per_gdp'])
 		
@@ -39,7 +42,7 @@ def predict():
 		
 		prot_area_perc = float(request.form['prot_area_perc'])
 		
-		gdp = float(request.form['gdp'])
+		#gdp = float(request.form['gdp'])
 		
 		gni_per_cap = float(request.form['gni_per_cap'])
 		
@@ -47,11 +50,14 @@ def predict():
 		
 		pop_growth_perc = float(request.form['pop_growth_perc'])
 		
-		pop = float(request.form['pop'])
+		#pop = float(request.form['pop'])
 		
-		urb_pop_growth_perc = float(request.form['urb_pop_growth_perc'])
+		#urb_pop_growth_perc = float(request.form['urb_pop_growth_perc'])
 		
-		urb_pop = float(request.form['urb_pop'])
+		#urb_pop = float(request.form['urb_pop'])
+
+
+
 
 
 		input_lst = [[cereal_yield,
@@ -59,21 +65,27 @@ def predict():
             en_per_gdp,
             en_per_cap,
             co2_ttl,
-            co2_per_cap,
+            
             co2_per_gdp,
             pop_urb_aggl_perc,
             prot_area_perc,
-            gdp,
+            
             gni_per_cap,
             under_5_mort_rate,
             pop_growth_perc,
-            pop,
-            urb_pop_growth_perc,urb_pop
+           
             ]]
-		scaler = StandardScaler().fit(np.array(input_lst).reshape(1,-1))
-		input_data_norm = scaler.transform(np.array(input_lst).reshape(1,-1))
-		pred = model.predict(input_data_norm)
+  
+		# scaler = StandardScaler().fit(np.array(input_lst).reshape(1,-1))
+		# input_data_norm = scaler.transform(np.array(input_lst).reshape(1,-1))
+		
+		inp_data_norm=scaler.transform(input_lst)
+		
+  
+  		
+		pred = model.predict(inp_data_norm)
 		output = pred
+  		
 		if output == 'green':
 			return render_template("green.html")
 		else:
